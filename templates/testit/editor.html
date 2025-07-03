@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TestIt</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #000000;
+      padding: 2em;
+    }
+
+    textarea {
+      width: 100%;
+      font-family: monospace;
+      font-size: 1em;
+      background: #236681;
+      border: 1px solid #182a5f;
+      padding: 1em;
+    }
+
+    pre {
+      background: #222;
+      color: rgb(63, 130, 172);
+      padding: 1em;
+    }
+
+    button {
+      padding: 0.5em 1em;
+      font-size: 1em;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  {% if question %}
+    <h1 style="color: rgb(219, 227, 227);">{{ question.title }}</h1>
+    <p style="color: white;">{{ question.statement }}</p>
+  {% else %}
+    <h1 style="color: rgb(219, 227, 227);">Paste your code here:</h1>
+  {% endif %}
+
+  {% if show_editor %}
+    <form method="post">
+      {% csrf_token %}
+      <p>{{ form.language.label_tag }} {{ form.language }}</p>
+
+      <p>{{ form.code.label_tag }}<br>
+      {{ form.code }}</p>
+
+      <p><strong style="color: white;">Input:</strong></p>
+      <p>{{ form.user_input.label_tag }}<br>
+      {{ form.user_input }}</p>
+
+      {% if no_expected is not True %}
+        <p><strong style="color: white;">Expected Output:</strong></p>
+        <p>{{ form.expected_output.label_tag }}<br>
+        {{ form.expected_output }}</p>
+      {% endif %}
+
+      <button type="submit">Run</button>
+    </form>
+
+    {% if output is not None %}
+      <h2 style="color:white;">Output:</h2>
+      <pre style="background:#102563; padding:1em;">{{ output }}</pre>
+      
+      {% if success is not None %}
+        {% if success %}
+          <p style="color: green;"> Success</p>
+        {% else %}
+          <p style="color: red;"> Failure </p>
+        {% endif %}
+      {% endif %}
+
+    {% endif %}
+
+  
+  {% else %}
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit">Solve this</button>
+    </form>
+  {% endif %}
+</body>
+</html>
