@@ -23,18 +23,21 @@ class QuestionView:
   
 	@classmethod
 	def question_editor(cls, request, id):
-		output = ""
 		question = Question.objects.get(id=id)
 		success = False
-		
+		wrong_test_case = -1
+  
 		if request.method == "POST":
-			output = Utils.run_code(request.POST)
-
 			form = CodeForm(request.POST)
-			if (form.is_valid()):
-				expected = form.cleaned_data["expected_output"]
-			
-				if (output.strip() == expected.strip()):
+   
+			for test_case in question.testCases.all():
+				output = Utils.run_code(request.POST, test_case.input)
+
+				if (output.strip() != test_case.expected_output):
+					wrong_test_case = test_case.id
+					break
+
+			if (wrong_test_case == -1):
 					success = True
 					
 		else:
@@ -43,25 +46,25 @@ class QuestionView:
 			
 		return render(request, "testit/editor.html", {
 			"question": question,
-			"form": form,
-			"output": output,
-			"show_editor": True,
-			"success" : success
+			"form" : form,
+			"show_code_form" : True,
+			"show_editor": False,
+			"success" : success,
+			"wrong_test_case" : wrong_test_case
 		})
 
 class Utils:
 	@classmethod
-	def run_code(cls, post_data):
+	def run_code(cls, post_data, current_input):
 		output = ""
 		
 		form = CodeForm(post_data)
 		if form.is_valid():
 			code = form.cleaned_data["code"]
-			user_input = form.cleaned_data["user_input"]
 			try:
 				result = subprocess.run(
 					["python3", "-c", code],
-					input = user_input,
+					input = current_input,
 					capture_output=True,
 					text=True,
 					timeout=5
@@ -81,7 +84,7 @@ def editor_view(request):
 	output = ""
 	if request.method=="POST":
 		form = CodeForm(request.POST)
-		output = Utils.run_code(request.POST)
+		output = Utils.run_code(request.POST, form.cleaned_data["user_input"])
 	else:
 		form = CodeForm()
 
