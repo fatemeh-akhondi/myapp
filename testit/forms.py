@@ -13,3 +13,11 @@ class CodeForm(forms.Form):
         required=False,
         widget=forms.Textarea(attrs={"rows": 4})
         )
+    
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=200)
+    password = forms.CharField(max_length=200)
+    
+class SignupForm(forms.Form):
+    username = forms.CharField(max_length=200)
+    password = forms.CharField(max_length=200)

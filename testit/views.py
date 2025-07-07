@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .forms import CodeForm
+from django.http import HttpResponse, HttpResponseRedirect
+from .forms import CodeForm, LoginForm, SignupForm
 from .models import Question
+from django.contrib.auth import logout, login, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.urls import reverse
 
 import subprocess
 
@@ -14,7 +18,7 @@ class QuestionView:
 		question = Question.objects.get(id=id)
 
 		if request.method == "POST":
-			return redirect("question_editor", id=id)
+			return redirect("testit:question_editor", id=id)
 
 		return render(request, "testit/editor.html", {
 			"question": question,
@@ -23,6 +27,9 @@ class QuestionView:
   
 	@classmethod
 	def question_editor(cls, request, id):
+		if (request.user.is_authenticated == False):
+			return redirect("testit:login")
+
 		question = Question.objects.get(id=id)
 		success = False
 		wrong_test_case = -1
@@ -77,8 +84,8 @@ class Utils:
 				
 		return output
 		
-def index(response):
-	return HttpResponse("Hello, world. You're at the testit index.")
+def index(request):
+	return render(request, "testit/index.html")
 
 def editor_view(request):
 	output = ""
@@ -93,4 +100,43 @@ def editor_view(request):
 		"output": output,
 		"show_editor": True,
 		"no_expected": True,
+	})
+
+def logout_view(request):
+	logout(request)
+	return redirect("testit:index")
+	# return HttpResponseRedirect(reverse("polls:index"))
+
+def login_view(request):
+	if request.method == "POST":
+		form = LoginForm(request.POST)
+		if form.is_valid():
+			username = form.cleaned_data["username"]
+			password = form.cleaned_data["password"]
+			user = authenticate(request, username=username, password=password)
+			if user is not None:
+				login(request, user)
+				return redirect("testit:index")
+			else:
+				return render(request, "testit/login.html", {
+					"form" : LoginForm()
+				})
+	return render(request, "testit/login.html", {
+			"form" : LoginForm(),
+		}) 
+  
+def signup_view(request):
+	if request.method == "POST":
+		form = SignupForm(request.POST)
+		if form.is_valid():
+			username = form.cleaned_data["username"]
+			password = form.cleaned_data["password"]
+			user = User.objects.create_user(username=username, password=password)
+			user.save()
+			return redirect("testit:login")
+	else:
+		form = SignupForm()
+
+	return render(request, "testit/signup.html", {
+		"form": form,
 	})

@@ -1,18 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>TestIt</title>
-</head>
-<body style="background:#000; color:#fff;">
+{% extends "testit/base.html" %}
+
+{% block content %}
+
     <h1>Available Questions</h1>
     <ul>
         {% for question in questions %}
             <li>
-                <a href="{% url 'question_detail' question.id %}" style="color: lightblue;">
+                <a href="{% url 'testit:question_detail' question.id %}" style="color: lightblue;">
                     {{ question.title }}
                 </a>
             </li>
         {% endfor %}
     </ul>
-</body>
-</html>
+
+{% endblock %}
