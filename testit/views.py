@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+from django.views import generic
+
 import subprocess
 
 class QuestionView:
@@ -83,6 +85,10 @@ class Utils:
 				output = f"Error: {str(e)}"
 				
 		return output
+
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = "testit/editor.html"
 		
 def index(request):
 	return render(request, "testit/index.html")
