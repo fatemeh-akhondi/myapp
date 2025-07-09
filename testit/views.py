@@ -43,7 +43,7 @@ class QuestionView:
 				output = Utils.run_code(request.POST, test_case.input)
 
 				if (output.strip() != test_case.expected_output):
-					wrong_test_case = test_case.id
+					wrong_test_case = test_case.get_question_group_id()
 					break
 
 			if (wrong_test_case == -1):
