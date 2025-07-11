@@ -21,7 +21,7 @@
 
 		{% if user.is_authenticated %}
 			<a href="{% url 'testit:logout' %}"> Logout </a>
-			User: {{user.username}}
+			<a href="{% url 'testit:profile' id=user.id %}"> User: {{user.username}} </a>
 		{% else %}
 			<a href="{% url 'testit:login' %}"> Login </a>
 			<a href="{% url 'testit:signup' %}"> Signup </a>

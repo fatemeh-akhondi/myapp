@@ -26,9 +26,9 @@ class QuestionView:
 			"question": question,
 			"show_editor": False,
 		})
-  
-	@classmethod
-	def question_editor(cls, request, id):
+
+	@staticmethod
+	def question_editor(request, id):
 		if (request.user.is_authenticated == False):
 			return redirect("testit:login")
 
@@ -52,6 +52,8 @@ class QuestionView:
 		else:
 			form = CodeForm()
 			success = None
+
+		QuestionView.update_user_question_status(request.user, question, success)
 			
 		return render(request, "testit/editor.html", {
 			"question": question,
@@ -61,6 +63,17 @@ class QuestionView:
 			"success" : success,
 			"wrong_test_case" : wrong_test_case
 		})
+
+	@staticmethod
+	def update_user_question_status(current_user, question, is_solved):
+		if (is_solved):
+			if (current_user.userprofile.tried_questions.all().filter(id=question.id).exists):
+				current_user.userprofile.tried_questions.remove(question)
+			current_user.userprofile.solved_questions.add(question)
+			print("soo added")
+		elif (not current_user.userprofile.solved_questions.all().filter(id=question.id).exists()):
+			current_user.userprofile.tried_questions.add(question)
+			print("added")
 
 class Utils:
 	@classmethod
@@ -87,8 +100,8 @@ class Utils:
 		return output
 
 class DetailView(generic.DetailView):
-    model = Question
-    template_name = "testit/editor.html"
+	model = Question
+	template_name = "testit/editor.html"
 		
 def index(request):
 	return render(request, "testit/index.html")
@@ -146,3 +159,23 @@ def signup_view(request):
 	return render(request, "testit/signup.html", {
 		"form": form,
 	})
+
+def profile(request, id):
+	if (request.user.is_authenticated == False):
+		return render(request, "login.html", {"error": "you are not logged in"})
+	if (request.user.id != id):
+		return render(request, "login.html", {"error": "access denied"})
+	
+	profile = request.user.userprofile
+ 
+	if request.method == "POST":
+		new_pic = request.FILES.get("pic")
+		new_bio = request.POST.get("bio")
+		if (new_pic is not None):
+			profile.profile_picture = new_pic
+		if (new_bio is not None):
+			profile.bio = new_bio
+   
+		profile.save()
+    
+	return render(request, "testit/profile.html", {'profile' : profile})

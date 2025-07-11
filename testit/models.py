@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Question(models.Model):
 	title = models.CharField(max_length=200)
@@ -18,3 +19,13 @@ class TestCase(models.Model):
 		all_test_cases = self.question.testCases.all()
   
 		return list(all_test_cases).index(self) + 1
+
+
+class UserProfile(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+ 
+	profile_picture = models.ImageField(upload_to='avatars/', blank=True)
+	bio = models.TextField(blank=True)
+	solved_questions = models.ManyToManyField(Question, blank=True, related_name='solved_userProfiles')
+	tried_questions = models.ManyToManyField(Question, blank=True, related_name='tried_userProfiles')
+	
