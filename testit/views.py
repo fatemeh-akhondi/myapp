@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from .forms import CodeForm, LoginForm, SignupForm
-from .models import Question
+from .models import Question, Contest
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
 
 from django.views import generic
 
@@ -99,12 +100,37 @@ class Utils:
 				
 		return output
 
-class DetailView(generic.DetailView):
-	model = Question
-	template_name = "testit/editor.html"
+# class DetailView(generic.DetailView):
+# 	model = Question
+	# template_name = "testit/editor.html"
 		
 def index(request):
 	return render(request, "testit/index.html")
+
+def contests(request):
+	return render(request, "testit/contests.html", {"contests" : Contest.objects.all()})
+
+def contest_detail(request, id):
+	contest = Contest.objects.get(id=id)
+	print(timezone.now() , contest.start_time)
+	if (timezone.now() < contest.start_time):
+		return HttpResponse("contest has not started!")
+	if (timezone.now() >= contest.start_time + contest.duration):
+		return HttpResponse("contest is over!")
+
+	solved = 0
+	for question in contest.questions.all():
+		if request.user.userprofile.solved_questions.filter(id=question.id).exists():
+			solved += 1
+   
+	remaining_time = contest.start_time + contest.duration - timezone.now()
+
+	return render(request, "testit/contest-detail.html", {
+     "questions" : contest.questions.all(), 
+    # "remaining_time" : remaining_time,
+     "remaining_time" : str(remaining_time).split('.')[0],
+     "solved" : solved,
+     })
 
 def editor_view(request):
 	output = ""

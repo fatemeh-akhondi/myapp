@@ -20,6 +20,15 @@ class TestCase(models.Model):
   
 		return list(all_test_cases).index(self) + 1
 
+class Contest(models.Model):
+	title = models.CharField(max_length=200)
+	questions = models.ManyToManyField(Question, related_name='contests')
+	start_time = models.DateTimeField()
+	duration = models.DurationField()
+ 
+	def __str__(self):
+		return self.title
+ 
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)

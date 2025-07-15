@@ -1,0 +1,16 @@
+{% extends "testit/base.html" %}
+
+{% block content %}
+
+    <h1>Available Contests</h1>
+    <ul>
+        {% for contest in contests %}
+            <li>
+                <a href="{% url 'testit:contest_detail' contest.id %}">
+                    {{ contest.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
