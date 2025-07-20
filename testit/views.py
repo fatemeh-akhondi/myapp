@@ -14,7 +14,13 @@ import subprocess
 
 class QuestionView:
 	def question_bank(request):
-		return render(request, "testit/question-bank.html", {"questions" : Question.objects.all()})
+		context = [
+			(question,
+	 		request.user.userprofile.solved_questions.filter(id=question.id).exists(), #solved status
+			question.solved_userProfiles.all().count()) #solved count
+			for question in Question.objects.all()
+		]
+		return render(request, "testit/question-bank.html", {"context" : context})
 	
 	@classmethod
 	def question_detail(cls, request, id):

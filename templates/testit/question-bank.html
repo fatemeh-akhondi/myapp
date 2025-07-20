@@ -2,15 +2,40 @@
 
 {% block content %}
 
-    <h1>Available Questions</h1>
-    <ul>
-        {% for question in questions %}
-            <li>
-                <a href="{% url 'testit:question_detail' question.id %}">
-                    {{ question.title }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="table-container">
+    <div class="table-header">Available Questions</div>
+    <table border="1" class="styled-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Question</th>
+                <th>Status</th>
+                <th>Solver count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question, status, solver_count in context %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <td>
+                    <a href="{% url 'testit:question_detail' question.id %}">
+                        {{ question.title }}
+                    </a>
+                </td>
+
+                {% if status == True %}
+                <td style="color: seagreen;">Solved</td>
+                {% else %}
+                 <td style="color:rgb(137, 3, 10)">Unsolved</td>
+                {% endif %}
+
+                <td> {{solver_count}} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
 
 {% endblock %}
