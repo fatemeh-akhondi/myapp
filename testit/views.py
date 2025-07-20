@@ -126,10 +126,12 @@ def contest_detail(request, id):
 	remaining_time = contest.start_time + contest.duration - timezone.now()
 
 	return render(request, "testit/contest-detail.html", {
-     "questions" : contest.questions.all(), 
+     "questions" : [(question, ("solved" if request.user.userprofile.solved_questions.filter(id=question.id).exists() else "usolved")) for question in contest.questions.all()], 
     # "remaining_time" : remaining_time,
      "remaining_time" : str(remaining_time).split('.')[0],
      "solved" : solved,
+     "user" : request.user,
+     "question_count" : contest.questions.all().count,
      })
 
 def editor_view(request):

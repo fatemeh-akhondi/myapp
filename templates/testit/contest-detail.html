@@ -1,18 +1,47 @@
 {% extends "testit/base.html" %}
 
 {% block content %}
-    remaining time: {{remaining_time}} </br>
-    solved {{solved}} out of {{questions.count}}
+    <div style="display: flex; gap: 2rem; background: #2e2e2e; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <div>
+            <strong>⏳ Time Left:</strong> <strong style="color:rgb(98, 37, 40);">{{ remaining_time }} </strong>
+        </div>
+        <div>
+            <strong>✅ Solved:</strong> {{ solved }} out of {{ question_count }}
+        </div>
+    </div>
 
-    <h1>Available Questions</h1>
-    <ul>
-        {% for question in questions %}
-            <li>
-                <a href="{% url 'testit:question_detail' question.id %}">
-                    {{ question.title }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
+
+    <div class="table-container">
+    <div class="table-header"> Problems</div>
+    <table border="1" class="styled-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Question</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question, status in questions %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <td>
+                    <a href="{% url 'testit:question_detail' question.id %}">
+                        {{ question }}
+                    </a>
+                </td>
+
+                {% if status == "solved" %}
+                <td style="color: seagreen;">{{ status }}</td>
+                {% else %}
+                 <td style="color:rgb(137, 3, 10)">{{ status }}</td>
+                {% endif %}
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
 
 {% endblock %}
