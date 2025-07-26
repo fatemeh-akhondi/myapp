@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from .forms import CodeForm, LoginForm, SignupForm
-from .models import Question, Contest
+from .models import Question, Contest, Tag
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -11,16 +11,78 @@ from django.utils import timezone
 from django.views import generic
 
 import subprocess
-
 class QuestionView:
 	def question_bank(request):
-		context = [
-			(question,
-	 		request.user.userprofile.solved_questions.filter(id=question.id).exists(), #solved status
-			question.solved_userProfiles.all().count()) #solved count
-			for question in Question.objects.all()
-		]
-		return render(request, "testit/question-bank.html", {"context" : context})
+		selected_tag_ids = list(map(int, request.GET.getlist("tags")))
+
+		request_min, request_max = QuestionView.set_boundaries(request)
+
+		selected_questions = QuestionView.find_selected_questions(selected_tag_ids, request_min, request_max)
+      
+		selected_context = QuestionView.question_list_to_context(request, selected_questions)
+  
+		return render(request, "testit/question-bank.html", {
+			"context" : selected_context,
+			"tags" : Tag.objects.all(),
+			"selected_tag_ids" : selected_tag_ids,
+		})
+  
+	def question_search(request):
+		search_word = request.GET.get("search", "")
+
+		selected_questions = Question.objects.filter(title__contains=search_word)
+		selected_context = QuestionView.question_list_to_context(request, selected_questions)
+
+		return render(request, "testit/question-bank.html", {
+			"context" : selected_context,
+			"tags" : Tag.objects.all(),
+			"selected_tag_ids" : [],
+		})
+  
+	@staticmethod
+	def question_list_to_context(request, question_queryset):
+		context = []
+		for question in question_queryset:
+			solved_status = request.user.userprofile.solved_questions.filter(id=question.id).exists()
+			solver_count = question.solved_userProfiles.all().count()
+			context.append((question, solved_status, solver_count))
+		
+		return context
+  
+	@staticmethod
+	def set_boundaries(request):
+		try:
+			request_min = int(request.GET.get("min_solvers", 0))
+		except (TypeError, ValueError):
+			request_min = 0
+
+		try:
+			request_max = int(request.GET.get("max_solvers", User.objects.count()))
+		except (TypeError, ValueError):
+			request_max = User.objects.count()
+
+		return request_min, request_max
+
+
+	@staticmethod
+	def find_selected_questions(selected_tag_ids, request_min, request_max):
+		selected_by_tag_questions = []
+		if not selected_tag_ids:
+			selected_by_tag_questions = Question.objects.all()
+		else:
+			for question in Question.objects.all():
+				for tag_id in selected_tag_ids:
+					solver_count = question.solved_userProfiles.all().count()
+					if question.Tags.filter(id=tag_id):
+						selected_by_tag_questions.append(question)
+
+		selected_questions = []
+		for question in selected_by_tag_questions:
+			solver_count = question.solved_userProfiles.all().count()
+			if (request_min <= solver_count <= request_max):
+				selected_questions.append(question)
+    
+		return selected_questions
 	
 	@classmethod
 	def question_detail(cls, request, id):

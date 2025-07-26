@@ -10,6 +10,7 @@ urlpatterns = [
 	path("", views.index, name="index"),
     path("editor/", views.editor_view, name="editor"),
     path("question-bank/", QuestionView.question_bank, name="question_bank"),
+    path("question-bank/search/", QuestionView.question_search, name="question-search"),
     path("question-bank/<int:id>/", QuestionView.question_detail, name="question_detail"),
     # path("question-bank/<int:id>/", views.DetailView.as_view(), name="question_detail"),
     path("question-bank/<int:id>/editor/", QuestionView.question_editor, name="question_editor"),

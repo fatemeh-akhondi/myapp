@@ -2,40 +2,78 @@
 
 {% block content %}
 
-    <div class="table-container">
-    <div class="table-header">Available Questions</div>
-    <table border="1" class="styled-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Question</th>
-                <th>Status</th>
-                <th>Solver count</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for question, status, solver_count in context %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
+<div style="border: 2px solid #007bff; margin: 10px; padding: 10px; display: flex; flex-direction: column; gap: 16px;">
+    <form method="get" action="/testit/question-bank/search">
+        <input type="text" name="search" placeholder="Search..." value="{{ request.GET.search }}" style="width: 50%; padding: 5px; font-size: 16px; border-color: violet;">
+    </form>
+</div>
 
-                <td>
-                    <a href="{% url 'testit:question_detail' question.id %}">
-                        {{ question.title }}
-                    </a>
-                </td>
+<div style="display: flex; gap: 20px;">
 
-                {% if status == True %}
-                <td style="color: seagreen;">Solved</td>
-                {% else %}
-                 <td style="color:rgb(137, 3, 10)">Unsolved</td>
-                {% endif %}
-
-                <td> {{solver_count}} </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- available questions table -->
+    <div class="table-container" style="margin: 10px;">
+        <div class="table-header">Available Questions</div>
+        <table border="1" class="styled-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>Status</th>
+                    <th>Solver count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for question, status, solver_count in context %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <a href="{% url 'testit:question_detail' question.id %}">
+                            {{ question.title }}
+                        </a>
+                    </td>
+                    {% if status %}
+                        <td style="color: seagreen;">Solved</td>
+                    {% else %}
+                        <td style="color: rgb(137, 3, 10);">Unsolved</td>
+                    {% endif %}
+                    <td>{{ solver_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
+    <!-- combined filters form -->
+    <div style="min-width: 200px;">
+        <form method="get" action="" style="border: 2px solid #007bff; margin: 10px; padding: 10px; display: flex; flex-direction: column; gap: 16px;">
+            
+            <!-- tag filter -->
+            <div>
+                <h3>Filter by Tags</h3>
+                <select name="tags" multiple size="6" style="width: 100%;">
+                    {% for tag in tags %}
+                        <option value="{{ tag.id }}"
+                            {% if tag.id|stringformat:"s" in selected_tag_ids %}
+                                selected
+                            {% endif %}>
+                            {{ tag.title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
+            <!-- solver range filter -->
+            <div>
+                <h3>Solver Count Range</h3>
+                <label for="min_solvers">Min:</label>
+                <input type="number" name="min_solvers" id="min_solvers" style="width: 100%;" value="{{ request.GET.min_solvers }}">
+                <br>
+                <label for="max_solvers">Max:</label>
+                <input type="number" name="max_solvers" id="max_solvers" style="width: 100%;" value="{{ request.GET.max_solvers }}">
+            </div>
+
+            <button type="submit" style="background-color: #007bff; color: white;">Apply</button>
+        </form>
+    </div>
+</div>
 {% endblock %}
