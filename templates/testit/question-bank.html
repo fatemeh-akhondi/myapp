@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<div style="border: 2px solid #007bff; margin: 10px; padding: 10px; display: flex; flex-direction: column; gap: 16px;">
+<div style="border: 2px solid #9bc6d7; margin: 10px; padding: 10px; display: flex; flex-direction: column; gap: 16px; border-radius: 6px; border-style: outset;">
     <form method="get" action="/testit/question-bank/search">
-        <input type="text" name="search" placeholder="Search..." value="{{ request.GET.search }}" style="width: 50%; padding: 5px; font-size: 16px; border-color: violet;">
+        <input type="text" name="search" placeholder="Search..." value="{{ request.GET.search }}" style="width: 50%; padding: 5px; font-size: 16px; border-color: rgb(137, 3, 10); border-radius: 6px;">
     </form>
 </div>
 
@@ -16,27 +16,35 @@
         <table border="1" class="styled-table">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Question</th>
+                    <th></th>
                     <th>Status</th>
                     <th>Solver count</th>
                 </tr>
             </thead>
             <tbody>
-                {% for question, status, solver_count in context %}
+                {% for question, status, solver_count, tags in context %}
                 <tr>
-                    <td>{{ forloop.counter }}</td>
                     <td>
                         <a href="{% url 'testit:question_detail' question.id %}">
                             {{ question.title }}
                         </a>
                     </td>
+                    <td style="position: relative; width: 400px;">
+                        <div style="position: absolute; bottom: 4px; right: 10px; font-size: 12px; color: #cccccc50;">
+                            {% for tag in tags %}
+                                <span style="margin-left: 4px;">{{ tag.title }}</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+
                     {% if status %}
-                        <td style="color: seagreen;">Solved</td>
+                        <td style="color: seagreen; width: 80x;">Solved</td>
                     {% else %}
-                        <td style="color: rgb(137, 3, 10);">Unsolved</td>
+                        <td style="color: rgb(137, 3, 10); width: 80px;">Unsolved</td>
                     {% endif %}
-                    <td>{{ solver_count }}</td>
+
+                    <td style="width: 100px; text-align: center;">{{ solver_count }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -45,12 +53,12 @@
 
     <!-- combined filters form -->
     <div style="min-width: 200px;">
-        <form method="get" action="" style="border: 2px solid #007bff; margin: 10px; padding: 10px; display: flex; flex-direction: column; gap: 16px;">
+        <form method="get" action="" style="border: 2px solid #9bc6d7; margin: 10px; padding: 10px; display: flex; flex-direction: column; gap: 16px; border-radius: 6px; border-style: outset;">
             
             <!-- tag filter -->
-            <div>
+            <div s>
                 <h3>Filter by Tags</h3>
-                <select name="tags" multiple size="6" style="width: 100%;">
+                <select name="tags" multiple size="6" style="width: 100%; border-radius: 6px; border-color: rgb(137, 3, 10);">
                     {% for tag in tags %}
                         <option value="{{ tag.id }}"
                             {% if tag.id|stringformat:"s" in selected_tag_ids %}
@@ -66,13 +74,13 @@
             <div>
                 <h3>Solver Count Range</h3>
                 <label for="min_solvers">Min:</label>
-                <input type="number" name="min_solvers" id="min_solvers" style="width: 100%;" value="{{ request.GET.min_solvers }}">
+                <input type="number" name="min_solvers" id="min_solvers" value="{{ request.GET.min_solvers }}" style="width: 100%; border-radius: 6px; border-color: rgb(137, 3, 10);">
                 <br>
                 <label for="max_solvers">Max:</label>
-                <input type="number" name="max_solvers" id="max_solvers" style="width: 100%;" value="{{ request.GET.max_solvers }}">
+                <input type="number" name="max_solvers" id="max_solvers" value="{{ request.GET.max_solvers }}" style="width: 100%; border-radius: 6px; border-color: rgb(137, 3, 10);">
             </div>
 
-            <button type="submit" style="background-color: #007bff; color: white;">Apply</button>
+            <button type="submit" style="background-color: #9bc6d7; color: black; border-radius: 6px; border-color: rgb(137, 3, 10);">Apply</button>
         </form>
     </div>
 </div>

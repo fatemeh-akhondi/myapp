@@ -45,7 +45,8 @@ class QuestionView:
 		for question in question_queryset:
 			solved_status = request.user.userprofile.solved_questions.filter(id=question.id).exists()
 			solver_count = question.solved_userProfiles.all().count()
-			context.append((question, solved_status, solver_count))
+			tags = question.Tags.all()
+			context.append((question, solved_status, solver_count, tags))
 		
 		return context
   
